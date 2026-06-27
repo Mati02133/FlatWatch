@@ -27,3 +27,13 @@ SERVICES = { # Strony z ktorych bedziemy korzystac
     "otodom" : True
 }
 
+OLX_CATEGORY_ID = 15 # 15 to mieszkania
+
+OLX_REGIONS = {
+    "Krakow" : 8,
+    "Warszawa" : 7,
+    "Wroclaw" : 9,
+
+}
+
+INTERVAL_MINUTES = 30 # co ile minut bedzie sprawdzac nowe ogloszenia
