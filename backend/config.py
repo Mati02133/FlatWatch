@@ -49,4 +49,14 @@ CITY_NORMALIZED = {
     "katowice": "katowice",
 }
 
+OTODOM_CITIES = {
+    "krakow": "malopolskie/krakow/krakow/krakow",
+    "warszawa": "mazowieckie/warszawa/warszawa/warszawa",
+    "wroclaw": "dolnoslaskie/wroclaw/wroclaw/wroclaw",
+    "gdansk": "pomorskie/gdansk/gdansk/gdansk",
+    "poznan": "wielkopolskie/poznan/poznan/poznan",
+    "lodz": "lodzkie/lodz/lodz/lodz",
+    "katowice": "slaskie/katowice/katowice/katowice",
+}
+
 INTERVAL_MINUTES = 30 # co ile minut bedzie sprawdzac nowe ogloszenia
