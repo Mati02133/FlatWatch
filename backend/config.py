@@ -29,14 +29,24 @@ SERVICES = { # Strony z ktorych bedziemy korzystac
 
 OLX_CATEGORY_ID = 15 # 15 to mieszkania
 
-OLX_REGIONS = {
+OLX_REGIONS = { # id regionu
     "Krakow" : 4,
     "Warszawa" : 7,
     "Wroclaw" : 9,
 
 }
-OLX_CITIES = {
+OLX_CITIES = { # id miasta
     "Krakow": "8959",
+}
+
+CITY_NORMALIZED = {
+    "krakow": "kraków",
+    "warszawa": "warszawa",
+    "wroclaw": "wrocław",
+    "gdansk": "gdańsk",
+    "poznan": "poznań",
+    "lodz": "łódź",
+    "katowice": "katowice",
 }
 
 INTERVAL_MINUTES = 30 # co ile minut bedzie sprawdzac nowe ogloszenia

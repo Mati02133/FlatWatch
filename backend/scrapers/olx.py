@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES
+from config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
 
 
 BASE_URL = "https://www.olx.pl/api/v1/offers/" # API do pobierania ogloszen
@@ -41,11 +41,15 @@ def decode_html(html) -> str: # dekoduje html do czystego tekstu
     soup = BeautifulSoup(html, "html.parser")
     return soup.get_text(separator="\n", strip=True)
 
-def get_price(params_list) ->  list:
-    for params in params_list:
-        if params.get("key") == "price": 
-            return params["value"].get("value")
-        return None
+
+def get_param(params_list, key) -> list: # pobiera tylko te parametry ktore sa nam potrzebne
+    for param in params_list:
+        if param.get("key") == key:
+            val = param["value"].get("value") # czesc parametrow ma wartosc w "value" a czesc w "key"
+            if val is None:
+                val = param["value"].get("key")
+            return val
+    return None
 
 def fetch_offers() -> list:
     params = build_params()
@@ -64,12 +68,15 @@ def fetch_offers() -> list:
 
 def parse_offer(offer) -> dict: # offer to pojedyncza oferta z listy ofert pobranych z API
     # a my pobieramy z tej oferty tylko te dane ktorych potrzrbujemy
+    params = offer.get("params", [])
     return {
         "external_id": f"olx_{offer.get('id')}",
         "service": "olx",
         "title": offer.get("title"),
         "description": decode_html(offer.get("description", " ")), 
-        "price": get_price(offer.get("params", [])),
+        "price": get_param(params, "price"),
+        "area": get_param(params, "m"),
+        "rooms": get_param(params, "rooms"),
         "city": offer.get("location", {}).get("city", {}).get("name", " "),
         "region": offer.get("location", {}).get("region", {}).get("name", " "),
         "url": offer.get("url"),
@@ -78,6 +85,8 @@ def parse_offer(offer) -> dict: # offer to pojedyncza oferta z listy ofert pobra
 def scrape_olx():
     offers = fetch_offers()
     parsed_offers = []
+    expected_city = CITY_NORMALIZED.get(FILTERS["miasto"].lower(), FILTERS["miasto"].lower())
+
     print("POBIERANIE OFERT Z OLX....")
     for offer in offers:
         parsed_offer = parse_offer(offer)
@@ -85,6 +94,8 @@ def scrape_olx():
 
         if FILTERS.get("tylko_prywatne") and not parsed_offer["is_private"]:
             continue 
+        if parsed_offer["city"].lower() != expected_city:
+            continue
 
         parsed_offers.append(parsed_offer)
 
