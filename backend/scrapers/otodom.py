@@ -93,16 +93,16 @@ def fetch_offer_details(offer_url) -> dict:
         return {}
     
 def parse_offer(ad) -> dict:
-    details = ad.get("details", [])
+    details = ad.get("characteristics", [])
     city = ""
-    locations = ad.get("locations", []).get("ReverseGeocoding", []).get("locations", [])
+    locations = ad.get("location", {}).get("reverseGeocoding", {}).get("locations", [])
     for i in locations:
-        if i.get("locationType") == "city":
+        if i.get("locationLevel") == "city_or_village":
             city = i.get("name", "")
             break
     return {
         "external_id": f"otodom_{ad.get('id')}",
-        "server": "otodom",
+        "service": "otodom",
         "title": ad.get("title",""),
         "description": decode_html(ad.get("description", "")),
         "price":get_detail(details, "price"),
