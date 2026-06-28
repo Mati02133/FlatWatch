@@ -54,8 +54,6 @@ def fetch_listing_page() -> list:
     try:
         response = requests.get(url, headers=HEADERS, timeout=15)
         response.raise_for_status()
-        data = response.json()
-        return data.get("items", [])
     except requests.RequestException as object:
         print(f"Error fetching offers from Otodom: {object}")
         return []
@@ -67,9 +65,29 @@ def fetch_listing_page() -> list:
         print("Error: Could not find the __NEXT_DATA__ script tag.")
         return []
     try:
-        data = json.loads(script.string)
-        item = data["props"]["pageProps"]["data"]["searchAds"]["items"]
+        data = json.loads(script.string) # parsuje json z html
+        item = data["props"]["pageProps"]["data"]["searchAds"]["items"] # pobiera tylko te parametry
         return item
-    except (json.JSONDecodeError, KeyError) as object:
+    except (json.JSONDecodeError, KeyError) as object: 
         print(f"Error parsing JSON data: {object}")
         return []
+    
+def fetch_offer_details(offer_url) -> dict:
+    try:
+        response = requests.get(offer_url, headers=HEADERS, timeout=15)
+        response.raise_for_status()
+    except requests.RequestException as object:
+        print(f"Error fetching offer details from Otodom: {object}")
+        return {}
+    
+    soup = BeautifulSoup(response.text, "html.parser")
+    
+    script = soup.find("script", id="__NEXT_DATA__")
+    if not script:
+        return {}
+    try:
+        data = json.loads(script.string)
+        return data["props"]["pageProps"]["ad"]
+    except (json.JSONDecodeError, KeyError) as object:
+        print(f"Error parsing JSON data: {object}")
+        return {}
