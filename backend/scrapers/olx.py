@@ -82,7 +82,7 @@ def parse_offer(offer) -> dict: # offer to pojedyncza oferta z listy ofert pobra
         "url": offer.get("url"),
         "is_private": not offer.get("business", False),
     }
-def scrape_olx():
+def scrape_olx() -> list:
     offers = fetch_offers()
     parsed_offers = []
     expected_city = CITY_NORMALIZED.get(FILTERS["miasto"].lower(), FILTERS["miasto"].lower())
