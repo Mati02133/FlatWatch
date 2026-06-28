@@ -33,7 +33,7 @@ def build_url() -> str: # buduje url do pobrania ogloszen z otodom.pl na config.
         params.append("ownerTypeSingleSelect=PRIVATE")
     
     if params:
-        url += "?" + "&".join(params)
+        url += "?" + "&".join(params) # dajemy ? i & aby polaczyc parametry w url
     return url
 
 def decode_html(html) -> str: # dekoduje html do czystego tekstu
@@ -43,7 +43,7 @@ def decode_html(html) -> str: # dekoduje html do czystego tekstu
     return soup.get_text(separator="\n", strip=True)
 
 
-def get_detail(details,key) -> str: # pobiera tylko te parametry ktore sa nam potrzebne
+def get_detail(details,key) -> str: # szuka w liscie cech szczegolowych ogloszenia zwracajac wartosc dla podanego klucza
     for item in details:
         if item.get("key") == key:
             return item.get("value")
@@ -52,9 +52,9 @@ def get_detail(details,key) -> str: # pobiera tylko te parametry ktore sa nam po
 def fetch_listing_page() -> list:
     url = build_url()
     try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
-        response.raise_for_status()
-    except requests.RequestException as object:
+        response = requests.get(url, headers=HEADERS, timeout=15) 
+        response.raise_for_status() 
+    except requests.RequestException as object: 
         print(f"Error fetching offers from Otodom: {object}")
         return []
     
