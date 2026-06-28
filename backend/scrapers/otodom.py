@@ -91,3 +91,51 @@ def fetch_offer_details(offer_url) -> dict:
     except (json.JSONDecodeError, KeyError) as object:
         print(f"Error parsing JSON data: {object}")
         return {}
+    
+def parse_offer(ad) -> dict:
+    details = ad.get("details", [])
+    city = ""
+    locations = ad.get("locations", []).get("ReverseGeocoding", []).get("locations", [])
+    for i in locations:
+        if i.get("locationType") == "city":
+            city = i.get("name", "")
+            break
+    return {
+        "external_id": f"otodom_{ad.get('id')}",
+        "server": "otodom",
+        "title": ad.get("title",""),
+        "description": decode_html(ad.get("description", "")),
+        "price":get_detail(details, "price"),
+        "area": get_detail(details, "m"),
+        "rooms": get_detail(details, "rooms_num"),
+        "city": city,
+        "url": ad.get("url",""),
+        "is_private": ad.get("advertiserType") == "private",
+    }
+def scrape_otodom() -> list:
+    url = build_url()
+    print(f"Scraping Otodom offers from URL: {url}")
+    offers = fetch_listing_page()
+    print(f"Found {len(offers)} offers on Otodom")
+
+    parsed_offers = []
+    expected_city = CITY_NORMALIZED.get(FILTERS["miasto"].lower(), FILTERS["miasto"].lower())
+    for i in offers:
+        slug = i.get("slug")
+        if not slug:
+            continue
+        offer_url = f"https://www.otodom.pl/pl/oferta/{slug}"
+        ad = fetch_offer_details(offer_url)
+        if not ad:
+            continue
+        parsed_offer = parse_offer(ad)
+        if parsed_offer["city"].lower() != expected_city:
+            continue
+        if FILTERS.get("tylko_prywatne") and not parsed_offer["is_private"]:
+            continue
+        parsed_offers.append(parsed_offer)
+    print(f"Finished scraping Otodom. Total offers after filtering: {len(parsed_offers)}")
+    for offer in parsed_offers:
+        print(offer)
+    return parsed_offers
+
