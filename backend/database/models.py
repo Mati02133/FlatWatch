@@ -16,7 +16,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS offers (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             external_id TEXT UNIQUE NOT NULL,
-            service     TEST NOT NULL,
+            service     TEXT NOT NULL,
             title       TEXT,
             description TEXT,
             price       INTEGER,
@@ -24,9 +24,8 @@ def create_tables():
             rooms       TEXT,
             city        TEXT,
             url         TEXT,
-            is_private  INTEGER DEAFULT 1,
-            is_active   INTEGER DEAFULT 1,
-            created_at  TEXT DEAFULT (datetime("now"))
+            is_private  INTEGER DEFAULT 1,
+            is_active   INTEGER DEFAULT 1
         )
     """)
 

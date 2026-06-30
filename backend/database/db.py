@@ -1,4 +1,5 @@
-from models import get_connection
+from database.models import get_connection
+import datetime
 
 def offer_exists(external_id):
     conn = get_connection
@@ -34,6 +35,7 @@ def add_offer(offer):
                         offer.get("city",""),
                         offer.get("url",""),
                         is_private_value,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                      )
         )
         conn.commit()
