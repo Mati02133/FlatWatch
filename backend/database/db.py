@@ -1,13 +1,14 @@
 from database.models import get_connection
-import datetime
+from datetime import datetime
 
 def offer_exists(external_id):
-    conn = get_connection
+    conn = get_connection()
     row = conn.execute("SELECT id FROM offers WHERE external_id = ?", (external_id,)).fetchone()
     conn.close()
 
     if row is not None:
-        return row
+        return True
+    return False
 
 
 def add_offer(offer):
@@ -15,15 +16,15 @@ def add_offer(offer):
     if offer_exists(offer["external_id"]):
         return False
     
-    conn = get_connection
+    conn = get_connection()
 
     try:
         if offer.get("is_private"):
             is_private_value = 1
         else:
             is_private_value = 0
-        conn.execute("""INSERT INTO offers (external_id, service, title, description, price, area, rooms, city, url, is_private)"
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        conn.execute("""INSERT INTO offers (external_id, service, title, description, price, area, rooms, city, url, is_private, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                      (
                         offer["external_id"],
                         offer["service"],
@@ -52,9 +53,9 @@ def deactivate_offer(external_id): # jezeli jakas oferta zniknie z serwisu zapis
 
 def get_active_offers(service):
     conn = get_connection()
-    rows = conn.execute("SELECT external_id FROM offers WHERE service = ? AND is_active = 1"(service,))
+    rows = conn.execute("SELECT external_id FROM offers WHERE service = ? AND is_active = 1",(service,))
     result = []
     for i in rows:
         i = i["external_id"]
-        i.append(result)
+        result.append(i)
     return result

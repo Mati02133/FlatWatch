@@ -25,7 +25,8 @@ def create_tables():
             city        TEXT,
             url         TEXT,
             is_private  INTEGER DEFAULT 1,
-            is_active   INTEGER DEFAULT 1
+            is_active   INTEGER DEFAULT 1,
+            created_at  TEXT
         )
     """)
 
