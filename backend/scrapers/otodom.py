@@ -3,18 +3,18 @@ from bs4 import BeautifulSoup
 import json
 from config import FILTERS, CITY_NORMALIZED, OTODOM_CITIES
 
-BASE_URL = "https://www.otodom.pl/pl/wyniki"
+BASE_URL = "https://www.otodom.pl/pl/wyniki" # base search page used for otodom listings
 
-HEADERS = { # headers uzywamy po to aby nie zostac zablokowanym przez serwer imitujac przegladarke
+HEADERS = { # sends a browser-like request to reduce anti-bot blocking
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) " # konkertna przegladarka i jej wersja
+        "AppleWebKit/537.36 (KHTML, like Gecko) " # browser version used to mimic a normal client
         "Chrome/124.0.0.0 Safari/537.36"
     ),
     "Accept-Language": "pl-PL,pl;q=0.9",
 }
 
-def build_url() -> str: # buduje url do pobrania ogloszen z otodom.pl na config.py
+def build_url() -> str: # creates the otodom search url using the configured filters
     city = FILTERS["miasto"].lower()
     typ = FILTERS["typ"]
     city_path = OTODOM_CITIES.get(city)
@@ -33,43 +33,43 @@ def build_url() -> str: # buduje url do pobrania ogloszen z otodom.pl na config.
         params.append("ownerTypeSingleSelect=PRIVATE")
     
     if params:
-        url += "?" + "&".join(params) # dajemy ? i & aby polaczyc parametry w url
+        url += "?" + "&".join(params) # adds the query string needed for the active filters
     return url
 
-def decode_html(html) -> str: # dekoduje html do czystego tekstu
+def decode_html(html) -> str: # strips html and keeps readable text only
     if not html:
         return ""
     soup = BeautifulSoup(html, "html.parser")
     return soup.get_text(separator="\n", strip=True)
 
 
-def get_detail(details,key) -> str: # szuka w liscie cech szczegolowych ogloszenia zwracajac wartosc dla podanego klucza
+def get_detail(details,key) -> str: # looks for the requested value in the listing detail fields
     for item in details:
         if item.get("key") == key:
             return item.get("value")
     return None
 
 def fetch_listing_page() -> list:
-    url = build_url()
+    url = build_url() # builds the final search url for the current city and filters
     try:
         response = requests.get(url, headers=HEADERS, timeout=15) 
         response.raise_for_status() 
     except requests.RequestException as object: 
-        print(f"Error fetching offers from Otodom: {object}")
+        print(f"error fetching offers from otodom: {object}")
         return []
     
     soup = BeautifulSoup(response.text, "html.parser")
     
     script = soup.find("script", id="__NEXT_DATA__")
     if not script:
-        print("Error: Could not find the __NEXT_DATA__ script tag.")
+        print("error: could not find the __next_data__ script tag.")
         return []
     try:
-        data = json.loads(script.string) # parsuje json z html
-        item = data["props"]["pageProps"]["data"]["searchAds"]["items"] # pobiera tylko te parametry
+        data = json.loads(script.string) # parses the embedded json payload from the search page
+        item = data["props"]["pageProps"]["data"]["searchAds"]["items"] # keeps only the listing objects needed by the app
         return item
     except (json.JSONDecodeError, KeyError) as object: 
-        print(f"Error parsing JSON data: {object}")
+        print(f"error parsing json data: {object}")
         return []
     
 def fetch_offer_details(offer_url) -> dict:
@@ -77,7 +77,7 @@ def fetch_offer_details(offer_url) -> dict:
         response = requests.get(offer_url, headers=HEADERS, timeout=15)
         response.raise_for_status()
     except requests.RequestException as object:
-        print(f"Error fetching offer details from Otodom: {object}")
+        print(f"error fetching offer details from otodom: {object}")
         return {}
     
     soup = BeautifulSoup(response.text, "html.parser")
@@ -89,7 +89,7 @@ def fetch_offer_details(offer_url) -> dict:
         data = json.loads(script.string)
         return data["props"]["pageProps"]["ad"]
     except (json.JSONDecodeError, KeyError) as object:
-        print(f"Error parsing JSON data: {object}")
+        print(f"error parsing json data: {object}")
         return {}
     
 def parse_offer(ad) -> dict:
@@ -113,10 +113,10 @@ def parse_offer(ad) -> dict:
         "is_private": ad.get("advertiserType") == "private",
     }
 def scrape_otodom() -> list:
-    url = build_url()
-    print(f"Scraping Otodom offers from URL: {url}")
-    offers = fetch_listing_page()
-    print(f"Found {len(offers)} offers on Otodom")
+    url = build_url() # builds the final otodom request for the current city
+    print(f"scraping otodom offers from url: {url}")
+    offers = fetch_listing_page() # loads the list of search results
+    print(f"found {len(offers)} offers on otodom")
 
     parsed_offers = []
     expected_city = CITY_NORMALIZED.get(FILTERS["miasto"].lower(), FILTERS["miasto"].lower())
@@ -125,7 +125,7 @@ def scrape_otodom() -> list:
         if not slug:
             continue
         offer_url = f"https://www.otodom.pl/pl/oferta/{slug}"
-        ad = fetch_offer_details(offer_url)
+        ad = fetch_offer_details(offer_url) # fetches the detailed listing data for each result
         if not ad:
             continue
         parsed_offer = parse_offer(ad)
@@ -134,7 +134,7 @@ def scrape_otodom() -> list:
         if FILTERS.get("tylko_prywatne") and not parsed_offer["is_private"]:
             continue
         parsed_offers.append(parsed_offer)
-    print(f"Finished scraping Otodom. Total offers after filtering: {len(parsed_offers)}")
+    print(f"finished scraping otodom. total offers after filtering: {len(parsed_offers)}")
     for offer in parsed_offers:
         print(offer)
     return parsed_offers

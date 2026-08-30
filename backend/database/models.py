@@ -2,15 +2,15 @@ import sqlite3
 
 from config import DATABASE_URL
 
-DB_PATH = DATABASE_URL.replace("sqlite:///", "")
+DB_PATH = DATABASE_URL.replace("sqlite:///", "") # converts the database url into a local sqlite file path
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH) 
-    conn.row_factory = sqlite3.Row # ustawiamy row_factory aby zwracac wiersze wedlug nazw kolumn
+    conn.row_factory = sqlite3.Row # enables column-name access when reading database rows
     return conn
 
 def create_tables():
-    conn = get_connection()
+    conn = get_connection() # opens the sqlite connection for schema setup
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS offers (

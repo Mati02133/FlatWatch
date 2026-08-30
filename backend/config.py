@@ -1,45 +1,45 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv() # wczytuje zmienne z .env
-# Tokeny uzywane do wysylania powiadomien na telefon
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+load_dotenv() # loads environment variables from the .env file
+# telegram settings used to send push notifications to a chat
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN") # stores the telegram bot token
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID") # stores the target telegram chat id
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///FlatWatch.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///FlatWatch.db") # default sqlite path used when no database url is set
 
 
 FILTERS = {
-"miasto": "Krakow", # miasto do url olx/otodom
-"typ": "wynajem", # sprzedaz/wynajem
-"cena_min": 0,
-"cena_max": 500000, # max/min cena w PLN
+"miasto": "Krakow", # main city used for the olx and otodom search urls
+"typ": "wynajem", # listing type, such as rental or sale
+"cena_min": 0, # minimum price in pln
+"cena_max": 500000, # maximum price in pln
 
-"powierzchnia_min": 0,
-"powierzchnia_max": 1000, # max/min powierzchnia w m2
+"powierzchnia_min": 0, # minimum area in square meters
+"powierzchnia_max": 1000, # maximum area in square meters
 
-"tylko_prywatne": True, #tylko ogloszenia prywtane bez posrednikow w przypadku True
+"tylko_prywatne": True, # keeps only private offers when enabled
 }
 
-SERVICES = { # Strony z ktorych bedziemy korzystac
+SERVICES = { # websites that are active in the scraping flow
     "olx" : True,
     "otodom" : True
 }
 
-OLX_CATEGORY_ID = 15 # 15 to mieszkania
+OLX_CATEGORY_ID = 15 # apartment category id used by olx
 
-OLX_REGIONS = { # id regionu
+OLX_REGIONS = { # region ids used for olx queries
     "Krakow" : 4,
     "Warszawa" : 7,
     "Wroclaw" : 9,
 
 }
-OLX_CITIES = { # id miasta
+OLX_CITIES = { # city ids used for olx queries
     "Krakow": "8959",
 }
 
-CITY_NORMALIZED = {
+CITY_NORMALIZED = { # normalizes city names to keep filtering consistent
     "krakow": "kraków",
     "warszawa": "warszawa",
     "wroclaw": "wrocław",
@@ -59,4 +59,4 @@ OTODOM_CITIES = {
     "katowice": "slaskie/katowice/katowice/katowice",
 }
 
-INTERVAL_MINUTES = 30 # co ile minut bedzie sprawdzac nowe ogloszenia
+INTERVAL_MINUTES = 30 # how often the app checks for new offers in minutes
