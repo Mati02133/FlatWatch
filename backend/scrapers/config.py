@@ -13,8 +13,8 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///FlatWatch.db")
 FILTERS = {
 "miasto": "Krakow", # miasto do url olx/otodom
 "typ": "wynajem", # sprzedaz/wynajem
-"cena_min": 0,
-"cena_max": 5000, # max/min cena w PLN
+"cena_min": 2090,
+"cena_max": 2090, # max/min cena w PLN
 
 "powierzchnia_min": 0,
 "powierzchnia_max": 1000, # max/min powierzchnia w m2
@@ -23,8 +23,7 @@ FILTERS = {
 }
 
 SERVICES = { # Strony z ktorych bedziemy korzystac
-    "olx" : True,
-    "otodom" : True
+    "olx" : True
 }
 
 OLX_CATEGORY_ID = 15 # 15 to mieszkania
@@ -47,16 +46,6 @@ CITY_NORMALIZED = {
     "poznan": "poznań",
     "lodz": "łódź",
     "katowice": "katowice",
-}
-
-OTODOM_CITIES = {
-    "krakow": "malopolskie/krakow/krakow/krakow",
-    "warszawa": "mazowieckie/warszawa/warszawa/warszawa",
-    "wroclaw": "dolnoslaskie/wroclaw/wroclaw/wroclaw",
-    "gdansk": "pomorskie/gdansk/gdansk/gdansk",
-    "poznan": "wielkopolskie/poznan/poznan/poznan",
-    "lodz": "lodzkie/lodz/lodz/lodz",
-    "katowice": "slaskie/katowice/katowice/katowice",
 }
 
 INTERVAL_MINUTES = 30 # co ile minut bedzie sprawdzac nowe ogloszenia
