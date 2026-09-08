@@ -1,4 +1,4 @@
-from database.models import get_connection
+from .models import get_connection
 from datetime import datetime
 
 def offer_exists(external_id):
@@ -59,3 +59,36 @@ def get_active_offers(service):
         i = i["external_id"]
         result.append(i)
     return result
+
+def update_offer_last_seen(external_id):
+    conn = get_connection()
+    if conn is None:
+        return
+    try:
+        conn.execute("UPDATE offers SET last_seen = ? WHERE external_id = ?",
+                     (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), external_id))
+        conn.commit()
+    except Exception as e:
+        print(f"ERROR UPDATING LAST SEEN: {e}")
+    finally:
+        conn.close()
+
+
+def deactivate_missing_offers(service, current_ids):
+    """Oznacza jako nieaktywne oferty, których nie ma w bieżącym pobraniu."""
+    conn = get_connection()
+    if conn is None:
+        return
+    try:
+        # Pobierz wszystkie aktywne oferty danego serwisu
+        rows = conn.execute("SELECT external_id FROM offers WHERE service = ? AND is_active = 1", (service,)).fetchall()
+        active_ids = [row["external_id"] for row in rows]
+        # Znajdź te, których nie ma w bieżącej liście
+        missing_ids = set(active_ids) - set(current_ids)
+        for ext_id in missing_ids:
+            conn.execute("UPDATE offers SET is_active = 0 WHERE external_id = ?", (ext_id,))
+        conn.commit()
+    except Exception as e:
+        print(f"ERROR DEACTIVATING OFFERS: {e}")
+    finally:
+        conn.close()

@@ -26,7 +26,8 @@ def create_tables():
             url         TEXT,
             is_private  INTEGER DEFAULT 1,
             is_active   INTEGER DEFAULT 1,
-            created_at  TEXT
+            created_at  TEXT,
+            last_seen   TEXT
         )
     """)
 
