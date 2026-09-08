@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
+from .config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
 
 BASE_URL = "https://www.olx.pl/api/v1/offers/" # api endpoint used to fetch olx listings
 
