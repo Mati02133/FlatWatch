@@ -50,13 +50,12 @@ def get_param(params_list, key) -> list: # reads only the fields needed for filt
                 val = param["value"].get("key")
             return val
     return None
-
 def fetch_offers() -> list:
     params = build_params() # prepares the filter payload for the olx request
     headers = { # sends a browser-like user agent to reduce server blocking
         "User-Agent": "Mozilla/5.0 (compatible; FlatWatch/1.0)",
     }
-    
+
     try:
         response = requests.get(BASE_URL, params=params, headers=headers, timeout=15) 
         response.raise_for_status() # confirms the api response is successful

@@ -1,6 +1,6 @@
 import sqlite3
 
-from config import DATABASE_URL
+from backend.scrapers.config import DATABASE_URL
 
 DB_PATH = DATABASE_URL.replace("sqlite:///", "") # converts the database url into a local sqlite file path
 
