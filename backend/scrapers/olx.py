@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
 
-
 BASE_URL = "https://www.olx.pl/api/v1/offers/" # api endpoint used to fetch olx listings
 
 def build_params() -> dict:
@@ -50,19 +49,43 @@ def get_param(params_list, key) -> list: # reads only the fields needed for filt
                 val = param["value"].get("key")
             return val
     return None
-def fetch_offers() -> list:
-    params = build_params() # prepares the filter payload for the olx request
-    headers = { # sends a browser-like user agent to reduce server blocking
-        "User-Agent": "Mozilla/5.0 (compatible; FlatWatch/1.0)",
-    }
 
+def fetch_offers() -> list:
+    params = build_params()
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": "https://www.olx.pl/",
+        "Origin": "https://www.olx.pl",
+        "X-Requested-With": "XMLHttpRequest",
+    }
     try:
-        response = requests.get(BASE_URL, params=params, headers=headers, timeout=15) 
-        response.raise_for_status() # confirms the api response is successful
-        data = response.json() # parses the response into a python dict
-        return data.get("data", []) # returns the list of listing objects
-    except requests.exceptions.RequestException as object: # handles network or http errors during fetch
-        print(f"Error fetching offers: {object}") # logs the exception details for debugging
+        import cloudscraper
+        scraper = cloudscraper.create_scraper()
+
+        scraper.get("https://www.olx.pl/", headers=headers, timeout=15)
+        response = scraper.get(BASE_URL, params=params, headers=headers, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("data", [])
+    except ImportError:
+        print("Brak biblioteki cloudscraper. Zainstaluj ją: pip install cloudscraper")
+        try:
+            session = requests.Session()
+            session.get("https://www.olx.pl/", headers=headers, timeout=15)
+            response = session.get(BASE_URL, params=params, headers=headers, timeout=15)
+            response.raise_for_status()
+            data = response.json()
+            return data.get("data", [])
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching offers: {e}")
+            return []
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching offers (cloudscraper): {e}")
+        return []
+    except ValueError as e:
+        print(f"Error parsing JSON response: {e}")
         return []
 
 def parse_offer(offer) -> dict: # keeps only the fields required by the app from each raw offer
@@ -80,6 +103,7 @@ def parse_offer(offer) -> dict: # keeps only the fields required by the app from
         "url": offer.get("url"),
         "is_private": not offer.get("business", False),
     }
+
 def scrape_olx() -> list:
     offers = fetch_offers() # loads the raw listing data from the source
     parsed_offers = []
@@ -88,7 +112,6 @@ def scrape_olx() -> list:
     print("fetching olx offers...")
     for offer in offers:
         parsed_offer = parse_offer(offer)
-
 
         if FILTERS.get("tylko_prywatne") and not parsed_offer["is_private"]:
             continue 
