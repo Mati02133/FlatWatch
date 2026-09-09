@@ -1,8 +1,13 @@
+import html
 import requests
 from backend.scrapers.config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
+def escape_html(value) -> str:
+    if value is None:
+        return ""
+    return html.escape(str(value), quote=True)
+
 def send_telegram_message(text: str, parse_mode: str = "HTML") -> None:
-    """Wysyła wiadomość Telegram do skonfigurowanego chatu."""
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         print("Brak tokenu Telegram – powiadomienie pominięte.")
         return

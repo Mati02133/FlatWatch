@@ -1,7 +1,24 @@
 from backend.scrapers.olx import scrape_olx
 from backend.database.models import create_tables
 from backend.database import db
-from backend.telegram import send_telegram_message
+from backend.telegram import send_telegram_message, escape_html
+
+def format_offer_message(offer) -> str:
+    title = escape_html(offer.get("title"))
+    price = escape_html(offer.get("price"))
+    area = escape_html(offer.get("area"))
+    city = escape_html(offer.get("city"))
+    region = escape_html(offer.get("region"))
+    url = escape_html(offer.get("url"))
+
+    return (
+        f"🏠 <b>Nowa oferta!</b>\n"
+        f"Tytuł: {title}\n"
+        f"Cena: {price} zł\n"
+        f"Metraż: {area} m²\n"
+        f"Lokalizacja: {city}, {region}\n"
+        f'<a href="{url}">Zobacz ogłoszenie</a>'
+    )
 
 def run_scraper():
     create_tables()
@@ -25,15 +42,7 @@ def run_scraper():
 
     # Wysyłanie powiadomień o nowych ofertach
     for offer in new_offers:
-        message = (
-            f"🏠 <b>Nowa oferta!</b>\n"
-            f"Tytuł: {offer['title']}\n"
-            f"Cena: {offer['price']} zł\n"
-            f"Metraż: {offer['area']} m²\n"
-            f"Lokalizacja: {offer['city']}, {offer['region']}\n"
-            f"<a href='{offer['url']}'>Zobacz ogłoszenie</a>"
-        )
-        send_telegram_message(message)
+        send_telegram_message(format_offer_message(offer))
 
     print("Aktualizacja bazy zakończona.")
 
