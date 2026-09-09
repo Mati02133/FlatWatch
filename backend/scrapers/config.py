@@ -19,6 +19,8 @@ FILTERS = {
 "powierzchnia_min": 30,
 "powierzchnia_max": 1000, # max/min powierzchnia w m2
 
+"zabudowa": ["blok", "apartamentowiec"], # blok/apartamentowiec/kamienica/pozostale, pusta lista to wszystkie
+
 "tylko_prywatne": False, #tylko ogloszenia prywtane bez posrednikow w przypadku True
 }
 
@@ -30,6 +32,8 @@ OLX_CATEGORIES = {
     "sprzedaz": 14,
     "wynajem": 15,
 }
+
+OLX_BUILDTYPES = ("blok", "apartamentowiec", "kamienica", "pozostale")
 
 OLX_REGIONS = { # id regionu
     "krakow" : 4,

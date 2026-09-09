@@ -1,6 +1,6 @@
 import cloudscraper
 from bs4 import BeautifulSoup
-from .config import OLX_CATEGORIES, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
+from .config import OLX_BUILDTYPES, OLX_CATEGORIES, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
 
 BASE_URL = "https://www.olx.pl/api/v1/offers/" # api endpoint used to fetch olx listings
 
@@ -38,6 +38,14 @@ def build_params() -> dict:
     
     if FILTERS.get("powierzchnia_max"):
         params["filter_float_m:to"] = FILTERS["powierzchnia_max"]
+    
+    for i, rodzaj in enumerate(FILTERS.get("zabudowa") or []):
+        rodzaj = rodzaj.lower()
+        if rodzaj not in OLX_BUILDTYPES:
+            raise ValueError(
+                f"Nieznana zabudowa '{rodzaj}' w FILTERS. Dostepne: {', '.join(OLX_BUILDTYPES)}."
+            )
+        params[f"filter_enum_builttype[{i}]"] = rodzaj
     
     return params
 
