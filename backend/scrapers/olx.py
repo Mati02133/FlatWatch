@@ -125,4 +125,5 @@ def scrape_olx() -> list:
         print(i)
     return parsed_offers
 
-scrape_olx() # runs the olx scraper once when the module is executed directly
+if __name__ == "__main__": # bez tego scrapowanie ruszalo juz przy imporcie modulu
+    scrape_olx()
