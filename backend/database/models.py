@@ -52,4 +52,9 @@ def create_tables():
         )
     """)
 
+    # Supabase wystawia kazda tabele ze schematu public przez REST API, a bez RLS
+    # kazdy z kluczem anon moglby ja czytac i zmieniac. Brak polityk = brak dostepu
+    # tamta droga. Scraper laczy sie jako wlasciciel tabeli, wiec jego to nie dotyczy.
+    conn.execute("ALTER TABLE offers ENABLE ROW LEVEL SECURITY")
+
     print("DATABASE READY")
