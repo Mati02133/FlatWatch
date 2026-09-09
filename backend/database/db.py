@@ -3,8 +3,10 @@ from datetime import datetime
 
 def offer_exists(external_id):
     conn = get_connection() # opens a connection to check whether an offer already exists
-    row = conn.execute("SELECT id FROM offers WHERE external_id = ?", (external_id,)).fetchone()
-    conn.close()
+    try:
+        row = conn.execute("SELECT id FROM offers WHERE external_id = ?", (external_id,)).fetchone()
+    finally:
+        conn.close()
 
     if row is not None:
         return True
@@ -41,24 +43,11 @@ def add_offer(offer):
         )
         conn.commit() # persists the new offer record
         return True
-    except Exception as object:
-        print(f"ERROR ADDING OFFER: {object}") # logs storage errors for debugging
+    except Exception as e:
+        print(f"ERROR ADDING OFFER: {e}") # logs storage errors for debugging
         return False
-    
-def deactivate_offer(external_id): # marks a listing as inactive when it disappears from the source
-    conn = get_connection()
-    conn.execute("UPDATE offers SET is_active = 0 WHERE external_id = ?",(external_id,))
-    conn.commit()
-    conn.close()
-
-def get_active_offers(service):
-    conn = get_connection() # loads only offers that are still active for a given service
-    rows = conn.execute("SELECT external_id FROM offers WHERE service = ? AND is_active = 1",(service,))
-    result = []
-    for i in rows:
-        i = i["external_id"]
-        result.append(i)
-    return result
+    finally:
+        conn.close()
 
 def update_offer_last_seen(external_id):
     conn = get_connection()
@@ -80,10 +69,8 @@ def deactivate_missing_offers(service, current_ids):
     if conn is None:
         return
     try:
-        # Pobierz wszystkie aktywne oferty danego serwisu
         rows = conn.execute("SELECT external_id FROM offers WHERE service = ? AND is_active = 1", (service,)).fetchall()
         active_ids = [row["external_id"] for row in rows]
-        # Znajdź te, których nie ma w bieżącej liście
         missing_ids = set(active_ids) - set(current_ids)
         for ext_id in missing_ids:
             conn.execute("UPDATE offers SET is_active = 0 WHERE external_id = ?", (ext_id,))
