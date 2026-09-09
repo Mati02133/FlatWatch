@@ -121,8 +121,6 @@ def scrape_olx() -> list:
         parsed_offers.append(parsed_offer)
 
     print(f"completed olx scraping. offers found: {len(parsed_offers)}")
-    for i in parsed_offers:
-        print(i)
     return parsed_offers
 
 if __name__ == "__main__": # bez tego scrapowanie ruszalo juz przy imporcie modulu
