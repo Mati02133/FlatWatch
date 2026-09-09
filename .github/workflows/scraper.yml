@@ -1,0 +1,39 @@
+name: FlatWatch
+
+on:
+  # 7 i 37 minuta zamiast 0 i 30 - o pelnej godzinie GitHub ma najwiekszy ruch
+  # i zaplanowane zadania potrafia sie wtedy opoznic albo zostac pominiete.
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# gdyby jeden przebieg sie przeciagnal, nastepny poczeka zamiast dublowac powiadomienia
+concurrency:
+  group: flatwatch-scraper
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Instalacja zaleznosci
+        run: pip install -r backend/requirements.txt
+
+      - name: Uruchom scraper
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python -m backend.main
