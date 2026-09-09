@@ -6,8 +6,6 @@ from backend.scrapers.config import DATABASE_URL
 _connection = None
 
 def get_connection():
-    # Baza stoi teraz w chmurze, wiec polaczenie otwieramy raz i uzywamy ponownie.
-    # Nawiazywanie go osobno dla kazdego zapytania kosztowaloby setki milisekund.
     global _connection
 
     if _connection is None or _connection.closed:

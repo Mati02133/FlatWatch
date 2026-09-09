@@ -1,7 +1,6 @@
 from .models import get_connection
 
 def as_text(value):
-    # SQLite przyjmowal dowolny typ w kolumnie tekstowej, Postgres tego nie zrobi
     if value is None:
         return None
     return str(value)
@@ -22,8 +21,6 @@ def add_offer(offer):
     conn = get_connection()
 
     try:
-        # ON CONFLICT pilnuje duplikatow po stronie bazy, wiec nie trzeba wczesniej pytac,
-        # czy oferta juz istnieje. RETURNING zwroci wiersz tylko przy faktycznym zapisie.
         row = conn.execute(
             """INSERT INTO offers (external_id, service, title, description, price, area, rooms, city, url, is_private)
                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -63,7 +60,6 @@ def deactivate_missing_offers(service, current_ids):
     conn = get_connection()
 
     try:
-        # jedno zapytanie zamiast petli - kazda podroz do Frankfurtu kosztuje
         conn.execute(
             """UPDATE offers SET is_active = FALSE
                WHERE service = %s AND is_active = TRUE AND NOT (external_id = ANY(%s))""",
