@@ -1,4 +1,4 @@
-import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 from .config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
 
@@ -60,33 +60,15 @@ def fetch_offers() -> list:
         "Origin": "https://www.olx.pl",
         "X-Requested-With": "XMLHttpRequest",
     }
-    try:
-        import cloudscraper
-        scraper = cloudscraper.create_scraper()
+    # Bledy celowo nie sa tu przechwytywane. Zwrocenie pustej listy wygladaloby
+    # jak "brak nowych ofert" i awaria pobierania przechodzilaby niezauwazona.
+    scraper = cloudscraper.create_scraper()
 
-        scraper.get("https://www.olx.pl/", headers=headers, timeout=15)
-        response = scraper.get(BASE_URL, params=params, headers=headers, timeout=15)
-        response.raise_for_status()
-        data = response.json()
-        return data.get("data", [])
-    except ImportError:
-        print("Brak biblioteki cloudscraper. Zainstaluj ją: pip install cloudscraper")
-        try:
-            session = requests.Session()
-            session.get("https://www.olx.pl/", headers=headers, timeout=15)
-            response = session.get(BASE_URL, params=params, headers=headers, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-            return data.get("data", [])
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching offers: {e}")
-            return []
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching offers (cloudscraper): {e}")
-        return []
-    except ValueError as e:
-        print(f"Error parsing JSON response: {e}")
-        return []
+    scraper.get("https://www.olx.pl/", headers=headers, timeout=15) # zbiera ciasteczka zabezpieczenia
+    response = scraper.get(BASE_URL, params=params, headers=headers, timeout=15)
+    response.raise_for_status()
+
+    return response.json().get("data", [])
 
 def parse_offer(offer) -> dict: # keeps only the fields required by the app from each raw offer
     params = offer.get("params", [])

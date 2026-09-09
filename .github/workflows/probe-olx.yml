@@ -42,8 +42,12 @@ jobs:
 
           print()
           print(" Test 2: pelna sciezka przez kod aplikacji")
-          offers = fetch_offers()
-          print("surowych ofert z API:", len(offers))
+          try:
+              offers = fetch_offers()
+              print("surowych ofert z API:", len(offers))
+          except Exception as e:
+              offers = []
+              print("pobieranie nie powiodlo sie:", type(e).__name__, e)
 
           print()
           if offers:
