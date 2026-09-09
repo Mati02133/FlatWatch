@@ -7,7 +7,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///FlatWatch.db")
+DATABASE_URL = os.getenv("DATABASE_URL") # adres bazy Postgres, lokalnie z .env, w Actions z sekretow
 
 
 FILTERS = {
