@@ -1,6 +1,6 @@
 import cloudscraper
 from bs4 import BeautifulSoup
-from .config import OLX_CATEGORY_ID, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
+from .config import OLX_CATEGORIES, OLX_REGIONS, FILTERS, OLX_CITIES, CITY_NORMALIZED
 
 BASE_URL = "https://www.olx.pl/api/v1/offers/" # api endpoint used to fetch olx listings
 
@@ -9,8 +9,15 @@ def build_params() -> dict:
     region_id = OLX_REGIONS.get(city, 4) # default region is krakow when the city is missing
     city_id = OLX_CITIES.get(city)
 
+    typ = FILTERS["typ"].lower()
+    category_id = OLX_CATEGORIES.get(typ)
+    if category_id is None:
+        raise ValueError(
+            f"Nieznany typ '{typ}' w FILTERS. Dostepne: {', '.join(sorted(OLX_CATEGORIES))}."
+        )
+
     params =  {
-        "category_id": OLX_CATEGORY_ID,
+        "category_id": category_id,
         "region_id": region_id,
         "limit": 50, # number of listings requested in one batch
         "offset": 0, # starting index for pagination
