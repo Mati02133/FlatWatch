@@ -22,6 +22,7 @@ FILTERS = {
 "zabudowa": ["blok", "apartamentowiec"], # blok/apartamentowiec/kamienica/pozostale, pusta lista to wszystkie
 
 "tylko_prywatne": False, #tylko ogloszenia prywtane bez posrednikow w przypadku True
+"pomin_tytul": ["TBS"],
 }
 
 SERVICES = { # Strony z ktorych bedziemy korzystac

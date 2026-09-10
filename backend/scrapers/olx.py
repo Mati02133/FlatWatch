@@ -114,6 +114,9 @@ def scrape_olx() -> list:
             continue 
         if parsed_offer["city"].lower() != expected_city:
             continue
+        title = (parsed_offer.get("title") or "").lower()
+        if any(slowo.lower() in title for slowo in FILTERS.get("pomin_tytul") or []):
+            continue
 
         parsed_offers.append(parsed_offer)
 
